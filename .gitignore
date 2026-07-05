@@ -1,0 +1,31 @@
+# Obsidian
+.obsidian/
+
+# IDE and editor files
+.idea/
+.vscode/
+*.iml
+
+# Java and Maven build outputs
+target/
+out/
+build/
+*.class
+
+# Local runtime data
+*.db
+*.sqlite
+*.sqlite3
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+~$*

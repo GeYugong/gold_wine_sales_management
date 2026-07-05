@@ -1,0 +1,261 @@
+package com.goldwine.ui;
+
+import com.goldwine.entity.Customer;
+import com.goldwine.entity.Origin;
+import com.goldwine.entity.SaleOrder;
+import com.goldwine.entity.SaleOrderItem;
+import com.goldwine.entity.Wine;
+import com.goldwine.service.CustomerService;
+import com.goldwine.service.OrderService;
+import com.goldwine.service.OriginService;
+import com.goldwine.service.StatisticsService;
+import com.goldwine.service.WineService;
+import com.goldwine.util.DateUtil;
+import com.goldwine.util.InputUtil;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+/**
+ * 编写者：Gold 红酒销售管理系统开发组
+ * 完成时间：2026-07-05
+ * 类的具体功能：显示控制台菜单，接收用户输入并调用业务层完成系统功能。
+ */
+public class ConsoleMenu {
+    private final InputUtil input = new InputUtil();
+    private final WineService wineService = new WineService();
+    private final OriginService originService = new OriginService();
+    private final CustomerService customerService = new CustomerService();
+    private final OrderService orderService = new OrderService();
+    private final StatisticsService statisticsService = new StatisticsService();
+
+    public void start() {
+        while (true) {
+            System.out.println("\n====== Gold 红酒销售管理系统 ======");
+            System.out.println("1. 红酒信息管理");
+            System.out.println("2. 产地信息管理");
+            System.out.println("3. 客户信息管理");
+            System.out.println("4. 购买结算管理");
+            System.out.println("5. 订单查询管理");
+            System.out.println("6. 销售统计管理");
+            System.out.println("0. 退出系统");
+            int choice = input.readInt("请选择：");
+            switch (choice) {
+                case 1: wineMenu(); break;
+                case 2: originMenu(); break;
+                case 3: customerMenu(); break;
+                case 4: checkoutMenu(); break;
+                case 5: orderMenu(); break;
+                case 6: statisticsMenu(); break;
+                case 0: System.out.println("已退出系统。"); return;
+                default: System.out.println("选项不存在。");
+            }
+        }
+    }
+
+    private void wineMenu() {
+        while (true) {
+            System.out.println("\n1. 添加红酒  2. 修改红酒  3. 删除红酒  4. 查询全部红酒");
+            System.out.println("5. 按名称查询  6. 按类型查询  7. 上架/下架  8. 查询库存不足  9. 按产地查询  0. 返回");
+            int choice = input.readInt("请选择：");
+            if (choice == 0) return;
+            switch (choice) {
+                case 1: saveWine(false); break;
+                case 2: saveWine(true); break;
+                case 3: deleteWine(); break;
+                case 4: printList(wineService.findAll()); break;
+                case 5: printList(wineService.findByName(input.readString("红酒名称关键词："))); break;
+                case 6: printList(wineService.findByType(input.readString("红酒类型："))); break;
+                case 7: changeWineStatus(); break;
+                case 8: printList(wineService.findLowStock()); break;
+                case 9: printList(wineService.findByOrigin(input.readInt("产地编号："))); break;
+                default: System.out.println("选项不存在。");
+            }
+        }
+    }
+
+    private void saveWine(boolean update) {
+        Wine wine = update ? wineService.findById(input.readInt("红酒编号：")) : new Wine();
+        if (wine == null) {
+            System.out.println("红酒不存在。");
+            return;
+        }
+        wine.setName(input.readString("名称："));
+        wine.setBrand(input.readString("品牌："));
+        wine.setType(input.readString("类型："));
+        wine.setYear(input.readInt("年份："));
+        wine.setOriginId(input.readInt("产地编号："));
+        wine.setGrapeVarieties(input.readString("葡萄品种："));
+        wine.setPurchasePrice(input.readMoney("进货价："));
+        wine.setSalePrice(input.readMoney("销售价："));
+        wine.setStock(input.readInt("库存："));
+        wine.setStatus(input.readString("状态（上架/下架）："));
+        wine.setSourceUrl(input.readString("来源链接（可空）："));
+        String error = update ? wineService.update(wine) : wineService.add(wine);
+        System.out.println(error == null ? "保存成功。" : error);
+    }
+
+    private void deleteWine() {
+        int id = input.readInt("红酒编号：");
+        System.out.println(wineService.delete(id) ? "删除成功。" : "该红酒存在订单明细，不能删除。");
+    }
+
+    private void changeWineStatus() {
+        int id = input.readInt("红酒编号：");
+        String status = input.readString("新状态（上架/下架）：");
+        wineService.updateStatus(id, status);
+        System.out.println("状态已更新。");
+    }
+
+    private void originMenu() {
+        while (true) {
+            System.out.println("\n1. 添加产地  2. 修改产地  3. 删除产地  4. 查询全部产地  0. 返回");
+            int choice = input.readInt("请选择：");
+            if (choice == 0) return;
+            switch (choice) {
+                case 1: saveOrigin(false); break;
+                case 2: saveOrigin(true); break;
+                case 3:
+                    System.out.println(originService.delete(input.readInt("产地编号：")) ? "删除成功。" : "该产地下存在红酒，不能删除。");
+                    break;
+                case 4: printList(originService.findAll()); break;
+                default: System.out.println("选项不存在。");
+            }
+        }
+    }
+
+    private void saveOrigin(boolean update) {
+        Origin origin = update ? originService.findById(input.readInt("产地编号：")) : new Origin();
+        if (origin == null) {
+            System.out.println("产地不存在。");
+            return;
+        }
+        origin.setCountry(input.readString("国家："));
+        origin.setDomestic("1".equals(input.readString("是否国内产地（1是/0否）：")));
+        origin.setProvince(input.readString("省份（国外可空）："));
+        origin.setCity(input.readString("城市（国内）："));
+        origin.setCounty(input.readString("区县（国内）："));
+        origin.setForeignCity(input.readString("国外城市："));
+        origin.setDescription(input.readString("产地说明："));
+        if (update) originService.update(origin); else originService.add(origin);
+        System.out.println("保存成功。");
+    }
+
+    private void customerMenu() {
+        while (true) {
+            System.out.println("\n1. 添加客户  2. 修改客户  3. 删除客户  4. 查询全部客户");
+            System.out.println("5. 按姓名或电话查询  6. 查询客户购买记录  0. 返回");
+            int choice = input.readInt("请选择：");
+            if (choice == 0) return;
+            switch (choice) {
+                case 1: saveCustomer(false); break;
+                case 2: saveCustomer(true); break;
+                case 3:
+                    System.out.println(customerService.delete(input.readInt("客户编号：")) ? "删除成功。" : "客户存在订单，不能删除。");
+                    break;
+                case 4: printList(customerService.findAll()); break;
+                case 5: printList(customerService.search(input.readString("姓名或电话关键词："))); break;
+                case 6: printList(orderService.findByCustomer(input.readInt("客户编号："))); break;
+                default: System.out.println("选项不存在。");
+            }
+        }
+    }
+
+    private void saveCustomer(boolean update) {
+        Customer customer = update ? customerService.findById(input.readInt("客户编号：")) : new Customer();
+        if (customer == null) {
+            System.out.println("客户不存在。");
+            return;
+        }
+        customer.setName(input.readString("姓名："));
+        customer.setGender(input.readString("性别："));
+        customer.setPhone(input.readString("电话："));
+        customer.setAddress(input.readString("地址："));
+        customer.setLevel(input.readString("会员等级（普通客户/品鉴会员/窖藏会员/私享会员）："));
+        customer.setRegisterTime(update ? customer.getRegisterTime() : DateUtil.now());
+        if (update) customerService.update(customer); else customerService.add(customer);
+        System.out.println("保存成功。");
+    }
+
+    private void checkoutMenu() {
+        while (true) {
+            System.out.println("\n1. 创建购买订单  2. 取消订单  0. 返回");
+            int choice = input.readInt("请选择：");
+            if (choice == 0) return;
+            if (choice == 1) {
+                printList(customerService.findAll());
+                int customerId = input.readInt("客户编号：");
+                printList(wineService.findAll());
+                int wineId = input.readInt("红酒编号：");
+                int quantity = input.readInt("购买数量：");
+                String payMethod = input.readString("支付方式（现金/微信/支付宝/银行卡）：");
+                System.out.println(orderService.createOrder(customerId, wineId, quantity, payMethod));
+            } else if (choice == 2) {
+                System.out.println(orderService.cancelOrder(input.readInt("订单编号：")));
+            } else {
+                System.out.println("选项不存在。");
+            }
+        }
+    }
+
+    private void orderMenu() {
+        while (true) {
+            System.out.println("\n1. 查询全部订单  2. 根据订单编号查询详情  3. 根据客户查询订单");
+            System.out.println("4. 查询已完成订单  5. 查询已取消订单  0. 返回");
+            int choice = input.readInt("请选择：");
+            if (choice == 0) return;
+            switch (choice) {
+                case 1: printList(orderService.findAll()); break;
+                case 2: printOrderDetail(input.readInt("订单编号：")); break;
+                case 3: printList(orderService.findByCustomer(input.readInt("客户编号："))); break;
+                case 4: printList(orderService.findCompleted()); break;
+                case 5: printList(orderService.findCanceled()); break;
+                default: System.out.println("选项不存在。");
+            }
+        }
+    }
+
+    private void printOrderDetail(int orderId) {
+        SaleOrder order = orderService.findById(orderId);
+        if (order == null) {
+            System.out.println("订单不存在。");
+            return;
+        }
+        System.out.println(order);
+        for (SaleOrderItem item : orderService.findItems(orderId)) {
+            System.out.println("  " + item);
+        }
+    }
+
+    private void statisticsMenu() {
+        while (true) {
+            System.out.println("\n1. 查询时间段销售总额  2. 查询红酒销量排行  3. 查询某红酒销售情况");
+            System.out.println("4. 查询库存不足红酒  5. 查询某客户消费总额  0. 返回");
+            int choice = input.readInt("请选择：");
+            if (choice == 0) return;
+            switch (choice) {
+                case 1:
+                    BigDecimal amount = statisticsService.totalAmount(input.readString("开始日期 yyyy-MM-dd："), input.readString("结束日期 yyyy-MM-dd："));
+                    System.out.println("销售总额：" + amount);
+                    break;
+                case 2: printList(statisticsService.wineRank()); break;
+                case 3: printList(statisticsService.wineSales(input.readInt("红酒编号："))); break;
+                case 4: printList(wineService.findLowStock()); break;
+                case 5:
+                    System.out.println("客户消费总额：" + statisticsService.customerTotal(input.readInt("客户编号：")));
+                    break;
+                default: System.out.println("选项不存在。");
+            }
+        }
+    }
+
+    private void printList(List<?> list) {
+        if (list.isEmpty()) {
+            System.out.println("暂无数据。");
+            return;
+        }
+        for (Object item : list) {
+            System.out.println(item);
+        }
+    }
+}

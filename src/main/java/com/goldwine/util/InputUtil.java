@@ -1,6 +1,7 @@
 package com.goldwine.util;
 
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
 /**
@@ -9,7 +10,7 @@ import java.util.Scanner;
  * 类的具体功能：封装控制台输入读取和基础校验。
  */
 public class InputUtil {
-    private final Scanner scanner = new Scanner(System.in);
+    private final Scanner scanner = new Scanner(System.in, StandardCharsets.UTF_8.name());
 
     public String readString(String prompt) {
         System.out.print(prompt);

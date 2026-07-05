@@ -49,6 +49,9 @@ public class WineService {
     public void updateStatus(int id, String status) { wineDao.updateStatus(id, status); }
 
     private String validate(Wine wine) {
+        if (!"上架".equals(wine.getStatus()) && !"下架".equals(wine.getStatus())) {
+            return "红酒状态只能是：上架、下架。";
+        }
         if (wine.getPurchasePrice().compareTo(BigDecimal.ZERO) < 0 || wine.getSalePrice().compareTo(BigDecimal.ZERO) < 0) {
             return "价格不能小于 0。";
         }

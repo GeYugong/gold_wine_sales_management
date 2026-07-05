@@ -2,6 +2,8 @@ package com.goldwine.util;
 
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.Scanner;
 
 /**
@@ -27,6 +29,26 @@ public class InputUtil {
         }
     }
 
+    public int readPositiveInt(String prompt) {
+        while (true) {
+            int value = readInt(prompt);
+            if (value > 0) {
+                return value;
+            }
+            System.out.println("请输入大于 0 的整数。");
+        }
+    }
+
+    public int readNonNegativeInt(String prompt) {
+        while (true) {
+            int value = readInt(prompt);
+            if (value >= 0) {
+                return value;
+            }
+            System.out.println("请输入不小于 0 的整数。");
+        }
+    }
+
     public BigDecimal readMoney(String prompt) {
         while (true) {
             try {
@@ -37,6 +59,40 @@ public class InputUtil {
                 System.out.println("金额不能小于 0。");
             } catch (NumberFormatException e) {
                 System.out.println("请输入正确的金额。");
+            }
+        }
+    }
+
+    public String readOption(String prompt, String... options) {
+        while (true) {
+            String value = readString(prompt);
+            for (String option : options) {
+                if (option.equals(value)) {
+                    return value;
+                }
+            }
+            System.out.println("输入不合法，只能输入：" + String.join("、", options) + "。");
+        }
+    }
+
+    public String readPattern(String prompt, String regex, String errorMessage) {
+        while (true) {
+            String value = readString(prompt);
+            if (value.matches(regex)) {
+                return value;
+            }
+            System.out.println(errorMessage);
+        }
+    }
+
+    public String readDate(String prompt) {
+        while (true) {
+            String value = readString(prompt);
+            try {
+                LocalDate.parse(value);
+                return value;
+            } catch (DateTimeParseException e) {
+                System.out.println("日期格式错误，请输入 yyyy-MM-dd。");
             }
         }
     }

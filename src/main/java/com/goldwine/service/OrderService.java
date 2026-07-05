@@ -27,10 +27,14 @@ public class OrderService {
     private final WineDao wineDao = new WineDao();
     private final SaleOrderDao orderDao = new SaleOrderDao();
     private final SaleOrderItemDao itemDao = new SaleOrderItemDao();
+    private static final String[] VALID_PAY_METHODS = {"现金", "微信", "支付宝", "银行卡"};
 
     public String createOrder(int customerId, int wineId, int quantity, String payMethod) {
         if (quantity <= 0) {
             return "购买数量必须大于 0。";
+        }
+        if (!isValidPayMethod(payMethod)) {
+            return "支付方式只能是：现金、微信、支付宝、银行卡。";
         }
         Customer customer = customerDao.findById(customerId);
         Wine wine = wineDao.findById(wineId);
@@ -125,5 +129,14 @@ public class OrderService {
             return new BigDecimal("0.85");
         }
         return BigDecimal.ONE;
+    }
+
+    private boolean isValidPayMethod(String payMethod) {
+        for (String validPayMethod : VALID_PAY_METHODS) {
+            if (validPayMethod.equals(payMethod)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

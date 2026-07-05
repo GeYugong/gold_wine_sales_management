@@ -76,34 +76,33 @@ public class ConsoleMenu {
     }
 
     private void saveWine(boolean update) {
-        Wine wine = update ? wineService.findById(input.readInt("红酒编号：")) : new Wine();
+        Wine wine = update ? readExistingWine("红酒编号：") : new Wine();
         if (wine == null) {
-            System.out.println("红酒不存在。");
             return;
         }
         wine.setName(input.readString("名称："));
         wine.setBrand(input.readString("品牌："));
         wine.setType(input.readString("类型："));
         wine.setYear(input.readInt("年份："));
-        wine.setOriginId(input.readInt("产地编号："));
+        wine.setOriginId(readExistingOriginId("产地编号："));
         wine.setGrapeVarieties(input.readString("葡萄品种："));
         wine.setPurchasePrice(input.readMoney("进货价："));
         wine.setSalePrice(input.readMoney("销售价："));
-        wine.setStock(input.readInt("库存："));
-        wine.setStatus(input.readString("状态（上架/下架）："));
+        wine.setStock(input.readNonNegativeInt("库存："));
+        wine.setStatus(input.readOption("状态（上架/下架）：", "上架", "下架"));
         wine.setSourceUrl(input.readString("来源链接（可空）："));
         String error = update ? wineService.update(wine) : wineService.add(wine);
         System.out.println(error == null ? "保存成功。" : error);
     }
 
     private void deleteWine() {
-        int id = input.readInt("红酒编号：");
+        int id = readExistingWineId("红酒编号：");
         System.out.println(wineService.delete(id) ? "删除成功。" : "该红酒存在订单明细，不能删除。");
     }
 
     private void changeWineStatus() {
-        int id = input.readInt("红酒编号：");
-        String status = input.readString("新状态（上架/下架）：");
+        int id = readExistingWineId("红酒编号：");
+        String status = input.readOption("新状态（上架/下架）：", "上架", "下架");
         wineService.updateStatus(id, status);
         System.out.println("状态已更新。");
     }
@@ -117,7 +116,7 @@ public class ConsoleMenu {
                 case 1: saveOrigin(false); break;
                 case 2: saveOrigin(true); break;
                 case 3:
-                    System.out.println(originService.delete(input.readInt("产地编号：")) ? "删除成功。" : "该产地下存在红酒，不能删除。");
+                    System.out.println(originService.delete(readExistingOriginId("产地编号：")) ? "删除成功。" : "该产地下存在红酒，不能删除。");
                     break;
                 case 4: printList(originService.findAll()); break;
                 default: System.out.println("选项不存在。");
@@ -126,13 +125,13 @@ public class ConsoleMenu {
     }
 
     private void saveOrigin(boolean update) {
-        Origin origin = update ? originService.findById(input.readInt("产地编号：")) : new Origin();
+        Origin origin = update ? originService.findById(readExistingOriginId("产地编号：")) : new Origin();
         if (origin == null) {
             System.out.println("产地不存在。");
             return;
         }
         origin.setCountry(input.readString("国家："));
-        origin.setDomestic("1".equals(input.readString("是否国内产地（1是/0否）：")));
+        origin.setDomestic("1".equals(input.readOption("是否国内产地（1是/0否）：", "1", "0")));
         origin.setProvince(input.readString("省份（国外可空）："));
         origin.setCity(input.readString("城市（国内）："));
         origin.setCounty(input.readString("区县（国内）："));
@@ -152,25 +151,25 @@ public class ConsoleMenu {
                 case 1: saveCustomer(false); break;
                 case 2: saveCustomer(true); break;
                 case 3:
-                    System.out.println(customerService.delete(input.readInt("客户编号：")) ? "删除成功。" : "客户存在订单，不能删除。");
+                    System.out.println(customerService.delete(readExistingCustomerId("客户编号：")) ? "删除成功。" : "客户存在订单，不能删除。");
                     break;
                 case 4: printCustomers(customerService.findAll()); break;
                 case 5: printCustomers(customerService.search(input.readString("姓名或电话关键词："))); break;
-                case 6: printList(orderService.findByCustomer(input.readInt("客户编号："))); break;
+                case 6: printList(orderService.findByCustomer(readExistingCustomerId("客户编号："))); break;
                 default: System.out.println("选项不存在。");
             }
         }
     }
 
     private void saveCustomer(boolean update) {
-        Customer customer = update ? customerService.findById(input.readInt("客户编号：")) : new Customer();
+        Customer customer = update ? customerService.findById(readExistingCustomerId("客户编号：")) : new Customer();
         if (customer == null) {
             System.out.println("客户不存在。");
             return;
         }
         customer.setName(input.readString("姓名："));
-        customer.setGender(input.readString("性别："));
-        customer.setPhone(input.readString("电话："));
+        customer.setGender(input.readOption("性别（男/女）：", "男", "女"));
+        customer.setPhone(input.readPattern("电话：", "\\d{11}", "手机号必须是 11 位数字。"));
         customer.setAddress(input.readString("地址："));
         customer.setLevel(readCustomerLevel());
         customer.setRegisterTime(update ? customer.getRegisterTime() : DateUtil.now());
@@ -188,6 +187,57 @@ public class ConsoleMenu {
         }
     }
 
+    private int readExistingWineId(String prompt) {
+        while (true) {
+            int id = input.readPositiveInt(prompt);
+            if (wineService.findById(id) != null) {
+                return id;
+            }
+            System.out.println("红酒编号不存在，请重新输入。");
+        }
+    }
+
+    private Wine readExistingWine(String prompt) {
+        while (true) {
+            int id = input.readPositiveInt(prompt);
+            Wine wine = wineService.findById(id);
+            if (wine != null) {
+                return wine;
+            }
+            System.out.println("红酒不存在，请重新输入。");
+        }
+    }
+
+    private int readExistingOriginId(String prompt) {
+        while (true) {
+            int id = input.readPositiveInt(prompt);
+            if (originService.findById(id) != null) {
+                return id;
+            }
+            System.out.println("产地编号不存在，请重新输入。");
+        }
+    }
+
+    private int readExistingCustomerId(String prompt) {
+        while (true) {
+            int id = input.readPositiveInt(prompt);
+            if (customerService.findById(id) != null) {
+                return id;
+            }
+            System.out.println("客户编号不存在，请重新输入。");
+        }
+    }
+
+    private int readExistingOrderId(String prompt) {
+        while (true) {
+            int id = input.readPositiveInt(prompt);
+            if (orderService.findById(id) != null) {
+                return id;
+            }
+            System.out.println("订单编号不存在，请重新输入。");
+        }
+    }
+
     private void checkoutMenu() {
         while (true) {
             System.out.println("\n1. 创建购买订单  2. 取消订单  0. 返回");
@@ -195,14 +245,14 @@ public class ConsoleMenu {
             if (choice == 0) return;
             if (choice == 1) {
                 printCustomers(customerService.findAll());
-                int customerId = input.readInt("客户编号：");
+                int customerId = readExistingCustomerId("客户编号：");
                 printWines(wineService.findAll());
-                int wineId = input.readInt("红酒编号：");
-                int quantity = input.readInt("购买数量：");
-                String payMethod = input.readString("支付方式（现金/微信/支付宝/银行卡）：");
+                int wineId = readExistingWineId("红酒编号：");
+                int quantity = input.readPositiveInt("购买数量：");
+                String payMethod = input.readOption("支付方式（现金/微信/支付宝/银行卡）：", "现金", "微信", "支付宝", "银行卡");
                 System.out.println(orderService.createOrder(customerId, wineId, quantity, payMethod));
             } else if (choice == 2) {
-                System.out.println(orderService.cancelOrder(input.readInt("订单编号：")));
+                System.out.println(orderService.cancelOrder(readExistingOrderId("订单编号：")));
             } else {
                 System.out.println("选项不存在。");
             }
@@ -217,8 +267,8 @@ public class ConsoleMenu {
             if (choice == 0) return;
             switch (choice) {
                 case 1: printList(orderService.findAll()); break;
-                case 2: printOrderDetail(input.readInt("订单编号：")); break;
-                case 3: printList(orderService.findByCustomer(input.readInt("客户编号："))); break;
+                case 2: printOrderDetail(readExistingOrderId("订单编号：")); break;
+                case 3: printList(orderService.findByCustomer(readExistingCustomerId("客户编号："))); break;
                 case 4: printList(orderService.findCompleted()); break;
                 case 5: printList(orderService.findCanceled()); break;
                 default: System.out.println("选项不存在。");
@@ -246,14 +296,14 @@ public class ConsoleMenu {
             if (choice == 0) return;
             switch (choice) {
                 case 1:
-                    BigDecimal amount = statisticsService.totalAmount(input.readString("开始日期 yyyy-MM-dd："), input.readString("结束日期 yyyy-MM-dd："));
+                    BigDecimal amount = statisticsService.totalAmount(input.readDate("开始日期 yyyy-MM-dd："), input.readDate("结束日期 yyyy-MM-dd："));
                     System.out.println("销售总额：" + amount);
                     break;
                 case 2: printList(statisticsService.wineRank()); break;
-                case 3: printList(statisticsService.wineSales(input.readInt("红酒编号："))); break;
+                case 3: printList(statisticsService.wineSales(readExistingWineId("红酒编号："))); break;
                 case 4: printWines(wineService.findLowStock()); break;
                 case 5:
-                    System.out.println("客户消费总额：" + statisticsService.customerTotal(input.readInt("客户编号：")));
+                    System.out.println("客户消费总额：" + statisticsService.customerTotal(readExistingCustomerId("客户编号：")));
                     break;
                 default: System.out.println("选项不存在。");
             }

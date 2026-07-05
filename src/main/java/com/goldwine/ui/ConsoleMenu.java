@@ -172,10 +172,20 @@ public class ConsoleMenu {
         customer.setGender(input.readString("性别："));
         customer.setPhone(input.readString("电话："));
         customer.setAddress(input.readString("地址："));
-        customer.setLevel(input.readString("会员等级（普通客户/品鉴会员/窖藏会员/私享会员）："));
+        customer.setLevel(readCustomerLevel());
         customer.setRegisterTime(update ? customer.getRegisterTime() : DateUtil.now());
         String error = update ? customerService.update(customer) : customerService.add(customer);
         System.out.println(error == null ? "保存成功。" : error);
+    }
+
+    private String readCustomerLevel() {
+        while (true) {
+            String level = input.readString("会员等级（普通客户/品鉴会员/窖藏会员/私享会员）：");
+            if ("普通客户".equals(level) || "品鉴会员".equals(level) || "窖藏会员".equals(level) || "私享会员".equals(level)) {
+                return level;
+            }
+            System.out.println("会员等级只能是：普通客户、品鉴会员、窖藏会员、私享会员，请重新输入。");
+        }
     }
 
     private void checkoutMenu() {

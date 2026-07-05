@@ -126,6 +126,13 @@ mvn compile
 mvn exec:java
 ```
 
+如果使用本仓库当前的本地工具安装路径，也可以直接执行：
+
+```powershell
+.\scripts\compile.ps1
+.\scripts\run.ps1
+```
+
 也可以在 IDE 中打开 Maven 项目，直接运行：
 
 ```text

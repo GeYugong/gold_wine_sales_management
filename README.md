@@ -123,6 +123,14 @@ erDiagram
 
 Windows：
 
+双击项目根目录下的：
+
+```text
+run.bat
+```
+
+或在命令行执行：
+
 ```powershell
 .\mvnw.cmd compile
 .\mvnw.cmd exec:java

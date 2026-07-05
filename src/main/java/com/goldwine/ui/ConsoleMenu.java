@@ -12,6 +12,7 @@ import com.goldwine.service.StatisticsService;
 import com.goldwine.service.WineService;
 import com.goldwine.util.DateUtil;
 import com.goldwine.util.InputUtil;
+import com.goldwine.util.TableUtil;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -63,12 +64,12 @@ public class ConsoleMenu {
                 case 1: saveWine(false); break;
                 case 2: saveWine(true); break;
                 case 3: deleteWine(); break;
-                case 4: printList(wineService.findAll()); break;
-                case 5: printList(wineService.findByName(input.readString("红酒名称关键词："))); break;
-                case 6: printList(wineService.findByType(input.readString("红酒类型："))); break;
+                case 4: printWines(wineService.findAll()); break;
+                case 5: printWines(wineService.findByName(input.readString("红酒名称关键词："))); break;
+                case 6: printWines(wineService.findByType(input.readString("红酒类型："))); break;
                 case 7: changeWineStatus(); break;
-                case 8: printList(wineService.findLowStock()); break;
-                case 9: printList(wineService.findByOrigin(input.readInt("产地编号："))); break;
+                case 8: printWines(wineService.findLowStock()); break;
+                case 9: printWines(wineService.findByOrigin(input.readInt("产地编号："))); break;
                 default: System.out.println("选项不存在。");
             }
         }
@@ -185,7 +186,7 @@ public class ConsoleMenu {
             if (choice == 1) {
                 printList(customerService.findAll());
                 int customerId = input.readInt("客户编号：");
-                printList(wineService.findAll());
+                printWines(wineService.findAll());
                 int wineId = input.readInt("红酒编号：");
                 int quantity = input.readInt("购买数量：");
                 String payMethod = input.readString("支付方式（现金/微信/支付宝/银行卡）：");
@@ -240,7 +241,7 @@ public class ConsoleMenu {
                     break;
                 case 2: printList(statisticsService.wineRank()); break;
                 case 3: printList(statisticsService.wineSales(input.readInt("红酒编号："))); break;
-                case 4: printList(wineService.findLowStock()); break;
+                case 4: printWines(wineService.findLowStock()); break;
                 case 5:
                     System.out.println("客户消费总额：" + statisticsService.customerTotal(input.readInt("客户编号：")));
                     break;
@@ -257,5 +258,30 @@ public class ConsoleMenu {
         for (Object item : list) {
             System.out.println(item);
         }
+    }
+
+    private void printWines(List<Wine> wines) {
+        if (wines.isEmpty()) {
+            System.out.println("暂无数据。");
+            return;
+        }
+        int[] widths = {4, 30, 16, 8, 6, 6, 8, 6, 6};
+        System.out.println(TableUtil.line(widths));
+        System.out.println(TableUtil.row(new Object[]{"编号", "名称", "品牌", "类型", "年份", "产地", "售价", "库存", "状态"}, widths));
+        System.out.println(TableUtil.line(widths));
+        for (Wine wine : wines) {
+            System.out.println(TableUtil.row(new Object[]{
+                    wine.getId(),
+                    wine.getName(),
+                    wine.getBrand(),
+                    wine.getType(),
+                    wine.getYear(),
+                    wine.getOriginId(),
+                    wine.getSalePrice(),
+                    wine.getStock(),
+                    wine.getStatus()
+            }, widths));
+        }
+        System.out.println(TableUtil.line(widths));
     }
 }

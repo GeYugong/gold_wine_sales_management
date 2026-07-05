@@ -118,7 +118,7 @@ public class ConsoleMenu {
                 case 3:
                     System.out.println(originService.delete(readExistingOriginId("产地编号：")) ? "删除成功。" : "该产地下存在红酒，不能删除。");
                     break;
-                case 4: printList(originService.findAll()); break;
+                case 4: printOrigins(originService.findAll()); break;
                 default: System.out.println("选项不存在。");
             }
         }
@@ -155,7 +155,7 @@ public class ConsoleMenu {
                     break;
                 case 4: printCustomers(customerService.findAll()); break;
                 case 5: printCustomers(customerService.search(input.readString("姓名或电话关键词："))); break;
-                case 6: printList(orderService.findByCustomer(readExistingCustomerId("客户编号："))); break;
+                case 6: printOrders(orderService.findByCustomer(readExistingCustomerId("客户编号："))); break;
                 default: System.out.println("选项不存在。");
             }
         }
@@ -266,11 +266,11 @@ public class ConsoleMenu {
             int choice = input.readInt("请选择：");
             if (choice == 0) return;
             switch (choice) {
-                case 1: printList(orderService.findAll()); break;
+                case 1: printOrders(orderService.findAll()); break;
                 case 2: printOrderDetail(readExistingOrderId("订单编号：")); break;
-                case 3: printList(orderService.findByCustomer(readExistingCustomerId("客户编号："))); break;
-                case 4: printList(orderService.findCompleted()); break;
-                case 5: printList(orderService.findCanceled()); break;
+                case 3: printOrders(orderService.findByCustomer(readExistingCustomerId("客户编号："))); break;
+                case 4: printOrders(orderService.findCompleted()); break;
+                case 5: printOrders(orderService.findCanceled()); break;
                 default: System.out.println("选项不存在。");
             }
         }
@@ -282,10 +282,8 @@ public class ConsoleMenu {
             System.out.println("订单不存在。");
             return;
         }
-        System.out.println(order);
-        for (SaleOrderItem item : orderService.findItems(orderId)) {
-            System.out.println("  " + item);
-        }
+        printOrders(java.util.Collections.singletonList(order));
+        printOrderItems(orderService.findItems(orderId));
     }
 
     private void statisticsMenu() {
@@ -297,13 +295,13 @@ public class ConsoleMenu {
             switch (choice) {
                 case 1:
                     BigDecimal amount = statisticsService.totalAmount(input.readDate("开始日期 yyyy-MM-dd："), input.readDate("结束日期 yyyy-MM-dd："));
-                    System.out.println("销售总额：" + amount);
+                    printAmount("销售总额", amount);
                     break;
-                case 2: printList(statisticsService.wineRank()); break;
-                case 3: printList(statisticsService.wineSales(readExistingWineId("红酒编号："))); break;
+                case 2: printStatisticsRows(statisticsService.wineRank()); break;
+                case 3: printStatisticsRows(statisticsService.wineSales(readExistingWineId("红酒编号："))); break;
                 case 4: printWines(wineService.findLowStock()); break;
                 case 5:
-                    System.out.println("客户消费总额：" + statisticsService.customerTotal(readExistingCustomerId("客户编号：")));
+                    printAmount("客户消费总额", statisticsService.customerTotal(readExistingCustomerId("客户编号：")));
                     break;
                 default: System.out.println("选项不存在。");
             }
@@ -365,6 +363,109 @@ public class ConsoleMenu {
                     customer.getRegisterTime()
             }, widths));
         }
+        System.out.println(TableUtil.line(widths));
+    }
+
+    private void printOrigins(List<Origin> origins) {
+        if (origins.isEmpty()) {
+            System.out.println("暂无数据。");
+            return;
+        }
+        int[] widths = {4, 10, 8, 12, 12, 12, 16, 30};
+        System.out.println(TableUtil.line(widths));
+        System.out.println(TableUtil.row(new Object[]{"编号", "国家", "国内", "省份", "城市", "区县", "国外城市", "说明"}, widths));
+        System.out.println(TableUtil.line(widths));
+        for (Origin origin : origins) {
+            System.out.println(TableUtil.row(new Object[]{
+                    origin.getId(),
+                    origin.getCountry(),
+                    origin.isDomestic() ? "是" : "否",
+                    origin.getProvince(),
+                    origin.getCity(),
+                    origin.getCounty(),
+                    origin.getForeignCity(),
+                    origin.getDescription()
+            }, widths));
+        }
+        System.out.println(TableUtil.line(widths));
+    }
+
+    private void printOrders(List<SaleOrder> orders) {
+        if (orders.isEmpty()) {
+            System.out.println("暂无数据。");
+            return;
+        }
+        int[] widths = {4, 6, 19, 10, 10, 10, 8, 8};
+        System.out.println(TableUtil.line(widths));
+        System.out.println(TableUtil.row(new Object[]{"编号", "客户", "下单时间", "原价", "优惠", "实付", "支付", "状态"}, widths));
+        System.out.println(TableUtil.line(widths));
+        for (SaleOrder order : orders) {
+            System.out.println(TableUtil.row(new Object[]{
+                    order.getId(),
+                    order.getCustomerId(),
+                    order.getOrderTime(),
+                    order.getTotalAmount(),
+                    order.getDiscountAmount(),
+                    order.getFinalAmount(),
+                    order.getPayMethod(),
+                    order.getStatus()
+            }, widths));
+        }
+        System.out.println(TableUtil.line(widths));
+    }
+
+    private void printOrderItems(List<SaleOrderItem> items) {
+        if (items.isEmpty()) {
+            System.out.println("暂无明细。");
+            return;
+        }
+        int[] widths = {4, 6, 6, 6, 10, 10};
+        System.out.println(TableUtil.line(widths));
+        System.out.println(TableUtil.row(new Object[]{"编号", "订单", "红酒", "数量", "单价", "小计"}, widths));
+        System.out.println(TableUtil.line(widths));
+        for (SaleOrderItem item : items) {
+            System.out.println(TableUtil.row(new Object[]{
+                    item.getId(),
+                    item.getOrderId(),
+                    item.getWineId(),
+                    item.getQuantity(),
+                    item.getUnitPrice(),
+                    item.getSubtotal()
+            }, widths));
+        }
+        System.out.println(TableUtil.line(widths));
+    }
+
+    private void printStatisticsRows(List<String> rows) {
+        if (rows.isEmpty()) {
+            System.out.println("暂无数据。");
+            return;
+        }
+        int[] widths = {4, 30, 8, 12};
+        System.out.println(TableUtil.line(widths));
+        System.out.println(TableUtil.row(new Object[]{"编号", "红酒名称", "销量", "销售额"}, widths));
+        System.out.println(TableUtil.line(widths));
+        for (String row : rows) {
+            String[] firstParts = row.split(" \\| ", 3);
+            String[] tailParts = firstParts.length > 2 ? firstParts[2].split(" \\| ") : new String[0];
+            String qty = tailParts.length > 0 ? tailParts[0].replace("销量:", "") : "";
+            String amount = tailParts.length > 1 ? tailParts[1].replace("销售额:", "") : "";
+            System.out.println(TableUtil.row(new Object[]{
+                    firstParts.length > 0 ? firstParts[0] : "",
+                    firstParts.length > 1 ? firstParts[1] : "",
+                    qty,
+                    amount
+            }, widths));
+        }
+        System.out.println(TableUtil.line(widths));
+    }
+
+    private void printAmount(String label, BigDecimal amount) {
+        int[] widths = {14, 12};
+        System.out.println(TableUtil.line(widths));
+        System.out.println(TableUtil.row(new Object[]{"统计项", "金额"}, widths));
+        System.out.println(TableUtil.line(widths));
+        System.out.println(TableUtil.row(new Object[]{label, amount}, widths));
         System.out.println(TableUtil.line(widths));
     }
 }

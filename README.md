@@ -2,7 +2,7 @@
 
 ## 项目简介
 
-Gold 红酒销售管理系统是 Java 高级编程课程设计项目，采用控制台菜单形式实现红酒销售管理。系统支持红酒信息管理、产地管理、客户管理、购买结算、订单查询和销售统计，并使用 SQLite 数据库进行数据持久化。
+Gold 红酒销售管理系统采用控制台菜单形式实现红酒销售管理。系统支持红酒信息管理、产地管理、客户管理、购买结算、订单查询和销售统计，并使用 SQLite 数据库进行数据持久化。
 
 线上仓库地址：https://github.com/GeYugong/gold_wine_sales_management
 
@@ -46,7 +46,6 @@ gold_wine_sales_management/
 | `sale_order` | 销售订单主表 |
 | `sale_order_item` | 销售订单明细表 |
 
-## E-R 图
 
 ```mermaid
 erDiagram

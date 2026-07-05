@@ -17,6 +17,7 @@ build/
 *.sqlite
 *.sqlite3
 *.log
+.local/
 
 # OS files
 .DS_Store

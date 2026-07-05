@@ -174,8 +174,8 @@ public class ConsoleMenu {
         customer.setAddress(input.readString("地址："));
         customer.setLevel(input.readString("会员等级（普通客户/品鉴会员/窖藏会员/私享会员）："));
         customer.setRegisterTime(update ? customer.getRegisterTime() : DateUtil.now());
-        if (update) customerService.update(customer); else customerService.add(customer);
-        System.out.println("保存成功。");
+        String error = update ? customerService.update(customer) : customerService.add(customer);
+        System.out.println(error == null ? "保存成功。" : error);
     }
 
     private void checkoutMenu() {

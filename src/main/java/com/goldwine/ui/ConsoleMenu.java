@@ -154,8 +154,8 @@ public class ConsoleMenu {
                 case 3:
                     System.out.println(customerService.delete(input.readInt("客户编号：")) ? "删除成功。" : "客户存在订单，不能删除。");
                     break;
-                case 4: printList(customerService.findAll()); break;
-                case 5: printList(customerService.search(input.readString("姓名或电话关键词："))); break;
+                case 4: printCustomers(customerService.findAll()); break;
+                case 5: printCustomers(customerService.search(input.readString("姓名或电话关键词："))); break;
                 case 6: printList(orderService.findByCustomer(input.readInt("客户编号："))); break;
                 default: System.out.println("选项不存在。");
             }
@@ -184,7 +184,7 @@ public class ConsoleMenu {
             int choice = input.readInt("请选择：");
             if (choice == 0) return;
             if (choice == 1) {
-                printList(customerService.findAll());
+                printCustomers(customerService.findAll());
                 int customerId = input.readInt("客户编号：");
                 printWines(wineService.findAll());
                 int wineId = input.readInt("红酒编号：");
@@ -280,6 +280,29 @@ public class ConsoleMenu {
                     wine.getSalePrice(),
                     wine.getStock(),
                     wine.getStatus()
+            }, widths));
+        }
+        System.out.println(TableUtil.line(widths));
+    }
+
+    private void printCustomers(List<Customer> customers) {
+        if (customers.isEmpty()) {
+            System.out.println("暂无数据。");
+            return;
+        }
+        int[] widths = {4, 10, 4, 13, 18, 10, 19};
+        System.out.println(TableUtil.line(widths));
+        System.out.println(TableUtil.row(new Object[]{"编号", "姓名", "性别", "电话", "地址", "会员等级", "注册时间"}, widths));
+        System.out.println(TableUtil.line(widths));
+        for (Customer customer : customers) {
+            System.out.println(TableUtil.row(new Object[]{
+                    customer.getId(),
+                    customer.getName(),
+                    customer.getGender(),
+                    customer.getPhone(),
+                    customer.getAddress(),
+                    customer.getLevel(),
+                    customer.getRegisterTime()
             }, widths));
         }
         System.out.println(TableUtil.line(widths));

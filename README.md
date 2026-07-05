@@ -119,18 +119,27 @@ erDiagram
 
 ## 运行方法
 
-确认本机已安装 JDK 8 和 Maven，然后在项目根目录执行：
+确认本机已安装 JDK 8 或更高版本。项目已提交 Maven Wrapper，不需要单独安装 Maven。
 
-```bash
-mvn compile
-mvn exec:java
+Windows：
+
+```powershell
+.\mvnw.cmd compile
+.\mvnw.cmd exec:java
 ```
 
-如果使用本仓库当前的本地工具安装路径，也可以直接执行：
+或使用封装脚本：
 
 ```powershell
 .\scripts\compile.ps1
 .\scripts\run.ps1
+```
+
+macOS / Linux：
+
+```bash
+./mvnw compile
+./mvnw exec:java
 ```
 
 也可以在 IDE 中打开 Maven 项目，直接运行：

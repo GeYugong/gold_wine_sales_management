@@ -49,6 +49,21 @@ public class WineService {
     public void updateStatus(int id, String status) { wineDao.updateStatus(id, status); }
 
     private String validate(Wine wine) {
+        if (isBlank(wine.getName())) {
+            return "红酒名称不能为空。";
+        }
+        if (isBlank(wine.getBrand())) {
+            return "品牌不能为空。";
+        }
+        if (isBlank(wine.getType())) {
+            return "类型不能为空。";
+        }
+        if (wine.getYear() < 1900) {
+            return "年份不能小于 1900。";
+        }
+        if (isBlank(wine.getGrapeVarieties())) {
+            return "葡萄品种不能为空。";
+        }
         if (!"上架".equals(wine.getStatus()) && !"下架".equals(wine.getStatus())) {
             return "红酒状态只能是：上架、下架。";
         }
@@ -59,5 +74,9 @@ public class WineService {
             return "库存不能小于 0。";
         }
         return null;
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
     }
 }

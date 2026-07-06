@@ -48,6 +48,15 @@ public class CustomerService {
         if (customer.getName() == null || customer.getName().trim().isEmpty()) {
             return "客户姓名不能为空。";
         }
+        if (!"男".equals(customer.getGender()) && !"女".equals(customer.getGender())) {
+            return "客户性别只能是：男、女。";
+        }
+        if (customer.getPhone() == null || !customer.getPhone().matches("\\d{11}")) {
+            return "手机号必须是 11 位数字。";
+        }
+        if (customer.getAddress() == null || customer.getAddress().trim().isEmpty()) {
+            return "客户地址不能为空。";
+        }
         if (!isValidLevel(customer.getLevel())) {
             return "会员等级只能是：普通客户、品鉴会员、窖藏会员、私享会员。";
         }

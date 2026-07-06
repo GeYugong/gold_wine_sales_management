@@ -19,6 +19,16 @@ public class InputUtil {
         return scanner.nextLine().trim();
     }
 
+    public String readRequiredString(String prompt) {
+        while (true) {
+            String value = readString(prompt);
+            if (!value.isEmpty()) {
+                return value;
+            }
+            System.out.println("该项不能为空，请重新输入。");
+        }
+    }
+
     public int readInt(String prompt) {
         while (true) {
             try {
@@ -26,6 +36,17 @@ public class InputUtil {
             } catch (NumberFormatException e) {
                 System.out.println("请输入正确的整数。");
             }
+        }
+    }
+
+    public int readYear(String prompt) {
+        int currentYear = LocalDate.now().getYear();
+        while (true) {
+            int value = readInt(prompt);
+            if (value >= 1900 && value <= currentYear) {
+                return value;
+            }
+            System.out.println("年份必须在 1900 到 " + currentYear + " 之间。");
         }
     }
 

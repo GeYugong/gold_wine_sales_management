@@ -65,8 +65,8 @@ public class ConsoleMenu {
                 case 2: saveWine(true); break;
                 case 3: deleteWine(); break;
                 case 4: printWines(wineService.findAll()); break;
-                case 5: printWines(wineService.findByName(input.readString("红酒名称关键词："))); break;
-                case 6: printWines(wineService.findByType(input.readString("红酒类型："))); break;
+                case 5: printWines(wineService.findByName(input.readRequiredString("红酒名称关键词："))); break;
+                case 6: printWines(wineService.findByType(input.readRequiredString("红酒类型："))); break;
                 case 7: changeWineStatus(); break;
                 case 8: printWines(wineService.findLowStock()); break;
                 case 9: printWines(wineService.findByOrigin(input.readInt("产地编号："))); break;
@@ -80,12 +80,12 @@ public class ConsoleMenu {
         if (wine == null) {
             return;
         }
-        wine.setName(input.readString("名称："));
-        wine.setBrand(input.readString("品牌："));
-        wine.setType(input.readString("类型："));
-        wine.setYear(input.readInt("年份："));
+        wine.setName(input.readRequiredString("名称："));
+        wine.setBrand(input.readRequiredString("品牌："));
+        wine.setType(input.readRequiredString("类型："));
+        wine.setYear(input.readYear("年份："));
         wine.setOriginId(readExistingOriginId("产地编号："));
-        wine.setGrapeVarieties(input.readString("葡萄品种："));
+        wine.setGrapeVarieties(input.readRequiredString("葡萄品种："));
         wine.setPurchasePrice(input.readMoney("进货价："));
         wine.setSalePrice(input.readMoney("销售价："));
         wine.setStock(input.readNonNegativeInt("库存："));
@@ -130,15 +130,22 @@ public class ConsoleMenu {
             System.out.println("产地不存在。");
             return;
         }
-        origin.setCountry(input.readString("国家："));
+        origin.setCountry(input.readRequiredString("国家："));
         origin.setDomestic("1".equals(input.readOption("是否国内产地（1是/0否）：", "1", "0")));
-        origin.setProvince(input.readString("省份（国外可空）："));
-        origin.setCity(input.readString("城市（国内）："));
-        origin.setCounty(input.readString("区县（国内）："));
-        origin.setForeignCity(input.readString("国外城市："));
-        origin.setDescription(input.readString("产地说明："));
-        if (update) originService.update(origin); else originService.add(origin);
-        System.out.println("保存成功。");
+        if (origin.isDomestic()) {
+            origin.setProvince(input.readRequiredString("省份："));
+            origin.setCity(input.readRequiredString("城市："));
+            origin.setCounty(input.readRequiredString("区县："));
+            origin.setForeignCity("");
+        } else {
+            origin.setProvince("");
+            origin.setCity("");
+            origin.setCounty("");
+            origin.setForeignCity(input.readRequiredString("国外城市："));
+        }
+        origin.setDescription(input.readRequiredString("产地说明："));
+        String error = update ? originService.update(origin) : originService.add(origin);
+        System.out.println(error == null ? "保存成功。" : error);
     }
 
     private void customerMenu() {
@@ -154,7 +161,7 @@ public class ConsoleMenu {
                     System.out.println(customerService.delete(readExistingCustomerId("客户编号：")) ? "删除成功。" : "客户存在订单，不能删除。");
                     break;
                 case 4: printCustomers(customerService.findAll()); break;
-                case 5: printCustomers(customerService.search(input.readString("姓名或电话关键词："))); break;
+                case 5: printCustomers(customerService.search(input.readRequiredString("姓名或电话关键词："))); break;
                 case 6: printOrders(orderService.findByCustomer(readExistingCustomerId("客户编号："))); break;
                 default: System.out.println("选项不存在。");
             }
@@ -167,10 +174,10 @@ public class ConsoleMenu {
             System.out.println("客户不存在。");
             return;
         }
-        customer.setName(input.readString("姓名："));
+        customer.setName(input.readRequiredString("姓名："));
         customer.setGender(input.readOption("性别（男/女）：", "男", "女"));
         customer.setPhone(input.readPattern("电话：", "\\d{11}", "手机号必须是 11 位数字。"));
-        customer.setAddress(input.readString("地址："));
+        customer.setAddress(input.readRequiredString("地址："));
         customer.setLevel(readCustomerLevel());
         customer.setRegisterTime(update ? customer.getRegisterTime() : DateUtil.now());
         String error = update ? customerService.update(customer) : customerService.add(customer);
@@ -179,7 +186,7 @@ public class ConsoleMenu {
 
     private String readCustomerLevel() {
         while (true) {
-            String level = input.readString("会员等级（普通客户/品鉴会员/窖藏会员/私享会员）：");
+            String level = input.readRequiredString("会员等级（普通客户/品鉴会员/窖藏会员/私享会员）：");
             if ("普通客户".equals(level) || "品鉴会员".equals(level) || "窖藏会员".equals(level) || "私享会员".equals(level)) {
                 return level;
             }

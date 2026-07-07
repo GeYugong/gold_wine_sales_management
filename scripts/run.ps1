@@ -1,3 +1,3 @@
 $ErrorActionPreference = "Stop"
 $projectRoot = Split-Path -Parent $PSScriptRoot
-& "$projectRoot\mvnw.cmd" exec:java
+& "$projectRoot\mvnw.cmd" -q exec:java

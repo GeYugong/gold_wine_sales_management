@@ -72,6 +72,19 @@ public class CustomerDao extends BaseDao {
         }
     }
 
+    public boolean phoneExists(String phone, int excludeId) {
+        String sql = "SELECT COUNT(*) FROM customer WHERE phone=? AND id<>?";
+        try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, phone);
+            ps.setInt(2, excludeId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() && rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private List<Customer> query(String sql, String param) {
         List<Customer> list = new ArrayList<>();
         try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {

@@ -54,6 +54,9 @@ public class CustomerService {
         if (customer.getPhone() == null || !customer.getPhone().matches("\\d{11}")) {
             return "手机号必须是 11 位数字。";
         }
+        if (customerDao.phoneExists(customer.getPhone(), customer.getId())) {
+            return "手机号已存在，请重新输入。";
+        }
         if (customer.getAddress() == null || customer.getAddress().trim().isEmpty()) {
             return "客户地址不能为空。";
         }

@@ -15,6 +15,7 @@ import com.goldwine.util.InputUtil;
 import com.goldwine.util.TableUtil;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -301,7 +302,8 @@ public class ConsoleMenu {
             if (choice == 0) return;
             switch (choice) {
                 case 1:
-                    BigDecimal amount = statisticsService.totalAmount(input.readDate("开始日期 yyyy-MM-dd："), input.readDate("结束日期 yyyy-MM-dd："));
+                    String[] range = readDateRange();
+                    BigDecimal amount = statisticsService.totalAmount(range[0], range[1]);
                     printAmount("销售总额", amount);
                     break;
                 case 2: printStatisticsRows(statisticsService.wineRank()); break;
@@ -322,6 +324,17 @@ public class ConsoleMenu {
         }
         for (Object item : list) {
             System.out.println(item);
+        }
+    }
+
+    private String[] readDateRange() {
+        while (true) {
+            String start = input.readDate("开始日期 yyyy-MM-dd：");
+            String end = input.readDate("结束日期 yyyy-MM-dd：");
+            if (!LocalDate.parse(start).isAfter(LocalDate.parse(end))) {
+                return new String[]{start, end};
+            }
+            System.out.println("开始日期不能晚于结束日期，请重新输入。");
         }
     }
 

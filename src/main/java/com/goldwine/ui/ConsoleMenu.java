@@ -196,8 +196,15 @@ public class ConsoleMenu {
     }
 
     private int readExistingWineId(String prompt) {
+        return readExistingWineId(prompt, false);
+    }
+
+    private int readExistingWineId(String prompt, boolean allowCancel) {
         while (true) {
-            int id = input.readPositiveInt(prompt);
+            int id = allowCancel ? input.readNonNegativeInt(prompt) : input.readPositiveInt(prompt);
+            if (allowCancel && id == 0) {
+                return 0;
+            }
             if (wineService.findById(id) != null) {
                 return id;
             }
@@ -227,8 +234,15 @@ public class ConsoleMenu {
     }
 
     private int readExistingCustomerId(String prompt) {
+        return readExistingCustomerId(prompt, false);
+    }
+
+    private int readExistingCustomerId(String prompt, boolean allowCancel) {
         while (true) {
-            int id = input.readPositiveInt(prompt);
+            int id = allowCancel ? input.readNonNegativeInt(prompt) : input.readPositiveInt(prompt);
+            if (allowCancel && id == 0) {
+                return 0;
+            }
             if (customerService.findById(id) != null) {
                 return id;
             }
@@ -237,8 +251,15 @@ public class ConsoleMenu {
     }
 
     private int readExistingOrderId(String prompt) {
+        return readExistingOrderId(prompt, false);
+    }
+
+    private int readExistingOrderId(String prompt, boolean allowCancel) {
         while (true) {
-            int id = input.readPositiveInt(prompt);
+            int id = allowCancel ? input.readNonNegativeInt(prompt) : input.readPositiveInt(prompt);
+            if (allowCancel && id == 0) {
+                return 0;
+            }
             if (orderService.findById(id) != null) {
                 return id;
             }
@@ -253,14 +274,20 @@ public class ConsoleMenu {
             if (choice == 0) return;
             if (choice == 1) {
                 printCustomers(customerService.findAll());
-                int customerId = readExistingCustomerId("客户编号：");
+                int customerId = readExistingCustomerId("客户编号（输入 0 取消）：", true);
+                if (customerId == 0) { System.out.println("已取消创建订单。"); continue; }
                 printWines(wineService.findAll());
-                int wineId = readExistingWineId("红酒编号：");
-                int quantity = input.readPositiveInt("购买数量：");
-                String payMethod = input.readOption("支付方式（现金/微信/支付宝/银行卡）：", "现金", "微信", "支付宝", "银行卡");
+                int wineId = readExistingWineId("红酒编号（输入 0 取消）：", true);
+                if (wineId == 0) { System.out.println("已取消创建订单。"); continue; }
+                int quantity = input.readNonNegativeInt("购买数量（输入 0 取消）：");
+                if (quantity == 0) { System.out.println("已取消创建订单。"); continue; }
+                String payMethod = input.readOption("支付方式（现金/微信/支付宝/银行卡，输入 0 取消）：", "现金", "微信", "支付宝", "银行卡", "0");
+                if ("0".equals(payMethod)) { System.out.println("已取消创建订单。"); continue; }
                 System.out.println(orderService.createOrder(customerId, wineId, quantity, payMethod));
             } else if (choice == 2) {
-                System.out.println(orderService.cancelOrder(readExistingOrderId("订单编号：")));
+                int cancelId = readExistingOrderId("订单编号（输入 0 取消）：", true);
+                if (cancelId == 0) { System.out.println("已取消操作。"); continue; }
+                System.out.println(orderService.cancelOrder(cancelId));
             } else {
                 System.out.println("选项不存在。");
             }

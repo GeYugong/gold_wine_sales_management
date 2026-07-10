@@ -12,11 +12,18 @@ import java.util.Scanner;
  * 类的具体功能：封装控制台输入读取和基础校验。
  */
 public class InputUtil {
+    /** 任意录入项输入该关键字即取消当前操作。 */
+    public static final String CANCEL_TOKEN = ":q";
+
     private final Scanner scanner = new Scanner(System.in, StandardCharsets.UTF_8.name());
 
     public String readString(String prompt) {
         System.out.print(prompt);
-        return scanner.nextLine().trim();
+        String value = scanner.nextLine().trim();
+        if (CANCEL_TOKEN.equalsIgnoreCase(value)) {
+            throw new CancelException();
+        }
+        return value;
     }
 
     public String readRequiredString(String prompt) {

@@ -10,6 +10,7 @@ import com.goldwine.service.OrderService;
 import com.goldwine.service.OriginService;
 import com.goldwine.service.StatisticsService;
 import com.goldwine.service.WineService;
+import com.goldwine.util.CancelException;
 import com.goldwine.util.DateUtil;
 import com.goldwine.util.InputUtil;
 import com.goldwine.util.TableUtil;
@@ -32,6 +33,7 @@ public class ConsoleMenu {
     private final StatisticsService statisticsService = new StatisticsService();
 
     public void start() {
+        System.out.println("提示：任意录入项输入 " + InputUtil.CANCEL_TOKEN + " 可取消当前操作并返回菜单。");
         while (true) {
             System.out.println("\n====== Gold 红酒销售管理系统 ======");
             System.out.println("1. 红酒信息管理");
@@ -41,16 +43,20 @@ public class ConsoleMenu {
             System.out.println("5. 订单查询管理");
             System.out.println("6. 销售统计管理");
             System.out.println("0. 退出系统");
-            int choice = input.readInt("请选择：");
-            switch (choice) {
-                case 1: wineMenu(); break;
-                case 2: originMenu(); break;
-                case 3: customerMenu(); break;
-                case 4: checkoutMenu(); break;
-                case 5: orderMenu(); break;
-                case 6: statisticsMenu(); break;
-                case 0: System.out.println("已退出系统。"); return;
-                default: System.out.println("选项不存在。");
+            try {
+                int choice = input.readInt("请选择：");
+                switch (choice) {
+                    case 1: wineMenu(); break;
+                    case 2: originMenu(); break;
+                    case 3: customerMenu(); break;
+                    case 4: checkoutMenu(); break;
+                    case 5: orderMenu(); break;
+                    case 6: statisticsMenu(); break;
+                    case 0: System.out.println("已退出系统。"); return;
+                    default: System.out.println("选项不存在。");
+                }
+            } catch (CancelException e) {
+                System.out.println("已取消。");
             }
         }
     }
@@ -59,19 +65,23 @@ public class ConsoleMenu {
         while (true) {
             System.out.println("\n1. 添加红酒  2. 修改红酒  3. 删除红酒  4. 查询全部红酒");
             System.out.println("5. 按名称查询  6. 按类型查询  7. 上架/下架  8. 查询库存不足  9. 按产地查询  0. 返回");
-            int choice = input.readInt("请选择：");
-            if (choice == 0) return;
-            switch (choice) {
-                case 1: saveWine(false); break;
-                case 2: saveWine(true); break;
-                case 3: deleteWine(); break;
-                case 4: printWines(wineService.findAll()); break;
-                case 5: printWines(wineService.findByName(input.readRequiredString("红酒名称关键词："))); break;
-                case 6: printWines(wineService.findByType(input.readRequiredString("红酒类型："))); break;
-                case 7: changeWineStatus(); break;
-                case 8: printWines(wineService.findLowStock()); break;
-                case 9: printWines(wineService.findByOrigin(input.readInt("产地编号："))); break;
-                default: System.out.println("选项不存在。");
+            try {
+                int choice = input.readInt("请选择：");
+                if (choice == 0) return;
+                switch (choice) {
+                    case 1: saveWine(false); break;
+                    case 2: saveWine(true); break;
+                    case 3: deleteWine(); break;
+                    case 4: printWines(wineService.findAll()); break;
+                    case 5: printWines(wineService.findByName(input.readRequiredString("红酒名称关键词："))); break;
+                    case 6: printWines(wineService.findByType(input.readRequiredString("红酒类型："))); break;
+                    case 7: changeWineStatus(); break;
+                    case 8: printWines(wineService.findLowStock()); break;
+                    case 9: printWines(wineService.findByOrigin(input.readInt("产地编号："))); break;
+                    default: System.out.println("选项不存在。");
+                }
+            } catch (CancelException e) {
+                System.out.println("已取消。");
             }
         }
     }
@@ -125,22 +135,26 @@ public class ConsoleMenu {
     private void originMenu() {
         while (true) {
             System.out.println("\n1. 添加产地  2. 修改产地  3. 删除产地  4. 查询全部产地  0. 返回");
-            int choice = input.readInt("请选择：");
-            if (choice == 0) return;
-            switch (choice) {
-                case 1: saveOrigin(false); break;
-                case 2: saveOrigin(true); break;
-                case 3: {
-                    int id = readExistingOriginId("产地编号（输入 0 取消）：", true);
-                    if (id == 0) {
-                        System.out.println("已取消。");
+            try {
+                int choice = input.readInt("请选择：");
+                if (choice == 0) return;
+                switch (choice) {
+                    case 1: saveOrigin(false); break;
+                    case 2: saveOrigin(true); break;
+                    case 3: {
+                        int id = readExistingOriginId("产地编号（输入 0 取消）：", true);
+                        if (id == 0) {
+                            System.out.println("已取消。");
+                            break;
+                        }
+                        System.out.println(originService.delete(id) ? "删除成功。" : "该产地下存在红酒，不能删除。");
                         break;
                     }
-                    System.out.println(originService.delete(id) ? "删除成功。" : "该产地下存在红酒，不能删除。");
-                    break;
+                    case 4: printOrigins(originService.findAll()); break;
+                    default: System.out.println("选项不存在。");
                 }
-                case 4: printOrigins(originService.findAll()); break;
-                default: System.out.println("选项不存在。");
+            } catch (CancelException e) {
+                System.out.println("已取消。");
             }
         }
     }
@@ -183,32 +197,36 @@ public class ConsoleMenu {
         while (true) {
             System.out.println("\n1. 添加客户  2. 修改客户  3. 删除客户  4. 查询全部客户");
             System.out.println("5. 按姓名或电话查询  6. 查询客户购买记录  0. 返回");
-            int choice = input.readInt("请选择：");
-            if (choice == 0) return;
-            switch (choice) {
-                case 1: saveCustomer(false); break;
-                case 2: saveCustomer(true); break;
-                case 3: {
-                    int id = readExistingCustomerId("客户编号（输入 0 取消）：", true);
-                    if (id == 0) {
-                        System.out.println("已取消。");
+            try {
+                int choice = input.readInt("请选择：");
+                if (choice == 0) return;
+                switch (choice) {
+                    case 1: saveCustomer(false); break;
+                    case 2: saveCustomer(true); break;
+                    case 3: {
+                        int id = readExistingCustomerId("客户编号（输入 0 取消）：", true);
+                        if (id == 0) {
+                            System.out.println("已取消。");
+                            break;
+                        }
+                        System.out.println(customerService.delete(id) ? "删除成功。" : "客户存在订单，不能删除。");
                         break;
                     }
-                    System.out.println(customerService.delete(id) ? "删除成功。" : "客户存在订单，不能删除。");
-                    break;
-                }
-                case 4: printCustomers(customerService.findAll()); break;
-                case 5: printCustomers(customerService.search(input.readRequiredString("姓名或电话关键词："))); break;
-                case 6: {
-                    int id = readExistingCustomerId("客户编号（输入 0 取消）：", true);
-                    if (id == 0) {
-                        System.out.println("已取消。");
+                    case 4: printCustomers(customerService.findAll()); break;
+                    case 5: printCustomers(customerService.search(input.readRequiredString("姓名或电话关键词："))); break;
+                    case 6: {
+                        int id = readExistingCustomerId("客户编号（输入 0 取消）：", true);
+                        if (id == 0) {
+                            System.out.println("已取消。");
+                            break;
+                        }
+                        printOrders(orderService.findByCustomer(id));
                         break;
                     }
-                    printOrders(orderService.findByCustomer(id));
-                    break;
+                    default: System.out.println("选项不存在。");
                 }
-                default: System.out.println("选项不存在。");
+            } catch (CancelException e) {
+                System.out.println("已取消。");
             }
         }
     }
@@ -334,26 +352,30 @@ public class ConsoleMenu {
     private void checkoutMenu() {
         while (true) {
             System.out.println("\n1. 创建购买订单  2. 取消订单  0. 返回");
-            int choice = input.readInt("请选择：");
-            if (choice == 0) return;
-            if (choice == 1) {
-                printCustomers(customerService.findAll());
-                int customerId = readExistingCustomerId("客户编号（输入 0 取消）：", true);
-                if (customerId == 0) { System.out.println("已取消创建订单。"); continue; }
-                printWines(wineService.findAll());
-                int wineId = readExistingWineId("红酒编号（输入 0 取消）：", true);
-                if (wineId == 0) { System.out.println("已取消创建订单。"); continue; }
-                int quantity = input.readNonNegativeInt("购买数量（输入 0 取消）：");
-                if (quantity == 0) { System.out.println("已取消创建订单。"); continue; }
-                String payMethod = input.readOption("支付方式（现金/微信/支付宝/银行卡，输入 0 取消）：", "现金", "微信", "支付宝", "银行卡", "0");
-                if ("0".equals(payMethod)) { System.out.println("已取消创建订单。"); continue; }
-                System.out.println(orderService.createOrder(customerId, wineId, quantity, payMethod));
-            } else if (choice == 2) {
-                int cancelId = readExistingOrderId("订单编号（输入 0 取消）：", true);
-                if (cancelId == 0) { System.out.println("已取消操作。"); continue; }
-                System.out.println(orderService.cancelOrder(cancelId));
-            } else {
-                System.out.println("选项不存在。");
+            try {
+                int choice = input.readInt("请选择：");
+                if (choice == 0) return;
+                if (choice == 1) {
+                    printCustomers(customerService.findAll());
+                    int customerId = readExistingCustomerId("客户编号（输入 0 取消）：", true);
+                    if (customerId == 0) { System.out.println("已取消创建订单。"); continue; }
+                    printWines(wineService.findAll());
+                    int wineId = readExistingWineId("红酒编号（输入 0 取消）：", true);
+                    if (wineId == 0) { System.out.println("已取消创建订单。"); continue; }
+                    int quantity = input.readNonNegativeInt("购买数量（输入 0 取消）：");
+                    if (quantity == 0) { System.out.println("已取消创建订单。"); continue; }
+                    String payMethod = input.readOption("支付方式（现金/微信/支付宝/银行卡，输入 0 取消）：", "现金", "微信", "支付宝", "银行卡", "0");
+                    if ("0".equals(payMethod)) { System.out.println("已取消创建订单。"); continue; }
+                    System.out.println(orderService.createOrder(customerId, wineId, quantity, payMethod));
+                } else if (choice == 2) {
+                    int cancelId = readExistingOrderId("订单编号（输入 0 取消）：", true);
+                    if (cancelId == 0) { System.out.println("已取消操作。"); continue; }
+                    System.out.println(orderService.cancelOrder(cancelId));
+                } else {
+                    System.out.println("选项不存在。");
+                }
+            } catch (CancelException e) {
+                System.out.println("已取消。");
             }
         }
     }
@@ -362,31 +384,35 @@ public class ConsoleMenu {
         while (true) {
             System.out.println("\n1. 查询全部订单  2. 根据订单编号查询详情  3. 根据客户查询订单");
             System.out.println("4. 查询已完成订单  5. 查询已取消订单  0. 返回");
-            int choice = input.readInt("请选择：");
-            if (choice == 0) return;
-            switch (choice) {
-                case 1: printOrders(orderService.findAll()); break;
-                case 2: {
-                    int id = readExistingOrderId("订单编号（输入 0 取消）：", true);
-                    if (id == 0) {
-                        System.out.println("已取消。");
+            try {
+                int choice = input.readInt("请选择：");
+                if (choice == 0) return;
+                switch (choice) {
+                    case 1: printOrders(orderService.findAll()); break;
+                    case 2: {
+                        int id = readExistingOrderId("订单编号（输入 0 取消）：", true);
+                        if (id == 0) {
+                            System.out.println("已取消。");
+                            break;
+                        }
+                        printOrderDetail(id);
                         break;
                     }
-                    printOrderDetail(id);
-                    break;
-                }
-                case 3: {
-                    int id = readExistingCustomerId("客户编号（输入 0 取消）：", true);
-                    if (id == 0) {
-                        System.out.println("已取消。");
+                    case 3: {
+                        int id = readExistingCustomerId("客户编号（输入 0 取消）：", true);
+                        if (id == 0) {
+                            System.out.println("已取消。");
+                            break;
+                        }
+                        printOrders(orderService.findByCustomer(id));
                         break;
                     }
-                    printOrders(orderService.findByCustomer(id));
-                    break;
+                    case 4: printOrders(orderService.findCompleted()); break;
+                    case 5: printOrders(orderService.findCanceled()); break;
+                    default: System.out.println("选项不存在。");
                 }
-                case 4: printOrders(orderService.findCompleted()); break;
-                case 5: printOrders(orderService.findCanceled()); break;
-                default: System.out.println("选项不存在。");
+            } catch (CancelException e) {
+                System.out.println("已取消。");
             }
         }
     }
@@ -405,34 +431,40 @@ public class ConsoleMenu {
         while (true) {
             System.out.println("\n1. 查询时间段销售总额  2. 查询红酒销量排行  3. 查询某红酒销售情况");
             System.out.println("4. 查询库存不足红酒  5. 查询某客户消费总额  0. 返回");
-            int choice = input.readInt("请选择：");
-            if (choice == 0) return;
-            switch (choice) {
-                case 1:
-                    String[] range = readDateRange();
-                    BigDecimal amount = statisticsService.totalAmount(range[0], range[1]);
-                    printAmount("销售总额", amount);
-                    break;
-                case 2: printStatisticsRows(statisticsService.wineRank()); break;
-                case 3: {
-                    int id = readExistingWineId("红酒编号（输入 0 取消）：", true);
-                    if (id == 0) {
-                        System.out.println("已取消。");
+            try {
+                int choice = input.readInt("请选择：");
+                if (choice == 0) return;
+                switch (choice) {
+                    case 1: {
+                        String[] range = readDateRange();
+                        BigDecimal amount = statisticsService.totalAmount(range[0], range[1]);
+                        printAmount("销售总额", amount);
                         break;
                     }
-                    printStatisticsRows(statisticsService.wineSales(id));
-                    break;
+                    case 2: printStatisticsRows(statisticsService.wineRank()); break;
+                    case 3: {
+                        int id = readExistingWineId("红酒编号（输入 0 取消）：", true);
+                        if (id == 0) {
+                            System.out.println("已取消。");
+                            break;
+                        }
+                        printStatisticsRows(statisticsService.wineSales(id));
+                        break;
+                    }
+                    case 4: printWines(wineService.findLowStock()); break;
+                    case 5: {
+                        int customerId = readExistingCustomerId("客户编号（输入 0 取消）：", true);
+                        if (customerId == 0) {
+                            System.out.println("已取消。");
+                            break;
+                        }
+                        printAmount("客户消费总额", statisticsService.customerTotal(customerId));
+                        break;
+                    }
+                    default: System.out.println("选项不存在。");
                 }
-                case 4: printWines(wineService.findLowStock()); break;
-                case 5:
-                    int customerId = readExistingCustomerId("客户编号（输入 0 取消）：", true);
-                    if (customerId == 0) {
-                        System.out.println("已取消。");
-                        break;
-                    }
-                    printAmount("客户消费总额", statisticsService.customerTotal(customerId));
-                    break;
-                default: System.out.println("选项不存在。");
+            } catch (CancelException e) {
+                System.out.println("已取消。");
             }
         }
     }

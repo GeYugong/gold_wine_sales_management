@@ -21,7 +21,8 @@ gold_wine_sales_management/
 ├── pom.xml
 ├── README.md
 ├── docs/
-│   └── data/                  # 原始数据和数据来源说明
+│   ├── data/                  # 原始数据和数据来源说明
+│   └── test-cases.md          # 手工测试用例
 ├── src/main/java/com/goldwine/
 │   ├── Main.java              # 程序入口
 │   ├── entity/                # 实体类
@@ -195,3 +196,7 @@ src/main/java/com/goldwine/Main.java
 
 - 程序运行所需初始化数据位于 `src/main/resources/data/`。
 - 原始数据、SQLite 脚本和数据来源说明归档在 `docs/data/`。
+
+## 测试用例
+
+手工测试用例见 [docs/test-cases.md](docs/test-cases.md)，覆盖六大功能模块、核心业务规则、通用输入校验以及端到端演示流程，可用于功能验证和答辩演示逐项核对。

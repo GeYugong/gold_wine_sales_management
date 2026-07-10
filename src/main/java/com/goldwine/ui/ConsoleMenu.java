@@ -391,9 +391,9 @@ public class ConsoleMenu {
             System.out.println("暂无数据。");
             return;
         }
-        int[] widths = {4, 10, 8, 12, 12, 12, 16, 30};
+        int[] widths = {4, 10, 8, 12, 12, 12, 16};
         System.out.println(TableUtil.line(widths));
-        System.out.println(TableUtil.row(new Object[]{"编号", "国家", "国内", "省份", "城市", "区县", "国外城市", "说明"}, widths));
+        System.out.println(TableUtil.row(new Object[]{"编号", "国家", "国内", "省份", "城市", "区县", "国外城市"}, widths));
         System.out.println(TableUtil.line(widths));
         for (Origin origin : origins) {
             System.out.println(TableUtil.row(new Object[]{
@@ -403,8 +403,7 @@ public class ConsoleMenu {
                     origin.getProvince(),
                     origin.getCity(),
                     origin.getCounty(),
-                    origin.getForeignCity(),
-                    origin.getDescription()
+                    origin.getForeignCity()
             }, widths));
         }
         System.out.println(TableUtil.line(widths));

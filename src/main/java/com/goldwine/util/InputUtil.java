@@ -13,7 +13,7 @@ import java.util.Scanner;
  */
 public class InputUtil {
     /** 任意录入项输入该关键字即取消当前操作。 */
-    public static final String CANCEL_TOKEN = ":q";
+    public static final String CANCEL_TOKEN = "q";
 
     private final Scanner scanner = new Scanner(System.in, StandardCharsets.UTF_8.name());
 

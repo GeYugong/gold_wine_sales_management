@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 编写者：Gold 红酒销售管理系统开发组
+ * 编写者：蓝海洋
  * 完成时间：2026-07-05
  * 类的具体功能：提供销售统计相关数据库查询。
  */

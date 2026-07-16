@@ -18,7 +18,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 /**
- * 编写者：Gold 红酒销售管理系统开发组
+ * 编写者：冯天浩
  * 完成时间：2026-07-05
  * 类的具体功能：处理购买结算、订单创建、取消订单和库存恢复业务。
  */

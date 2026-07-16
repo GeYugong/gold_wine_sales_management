@@ -20,7 +20,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 /**
- * 编写者：Gold 红酒销售管理系统开发组
+ * 编写者：张雅
  * 完成时间：2026-07-05
  * 类的具体功能：显示控制台菜单，接收用户输入并调用业务层完成系统功能。
  */

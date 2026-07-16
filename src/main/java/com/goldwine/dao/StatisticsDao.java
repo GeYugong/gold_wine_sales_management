@@ -32,8 +32,10 @@ public class StatisticsDao extends BaseDao {
     }
 
     public List<String> wineSales(int wineId) {
-        String sql = "SELECT w.id,w.name,COALESCE(SUM(i.quantity),0) qty,COALESCE(SUM(i.subtotal),0) amount " +
-                "FROM wine w LEFT JOIN sale_order_item i ON w.id=i.wine_id LEFT JOIN sale_order o ON i.order_id=o.id AND o.status='已完成' " +
+        String sql = "SELECT w.id,w.name," +
+                "COALESCE(SUM(CASE WHEN o.status='已完成' THEN i.quantity ELSE 0 END),0) qty," +
+                "COALESCE(SUM(CASE WHEN o.status='已完成' THEN i.subtotal ELSE 0 END),0) amount " +
+                "FROM wine w LEFT JOIN sale_order_item i ON w.id=i.wine_id LEFT JOIN sale_order o ON i.order_id=o.id " +
                 "WHERE w.id=? GROUP BY w.id,w.name";
         return list(sql, wineId);
     }

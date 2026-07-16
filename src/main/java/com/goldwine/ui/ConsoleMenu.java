@@ -249,12 +249,22 @@ public class ConsoleMenu {
         }
         customer.setName(input.readRequiredString("姓名："));
         customer.setGender(input.readOption("性别（男/女）：", "男", "女"));
-        customer.setPhone(input.readPattern("电话：", "\\d{11}", "手机号必须是 11 位数字。"));
+        customer.setPhone(readUniqueCustomerPhone(customer.getId()));
         customer.setAddress(input.readRequiredString("地址："));
         customer.setLevel(readCustomerLevel());
         customer.setRegisterTime(update ? customer.getRegisterTime() : DateUtil.now());
         String error = update ? customerService.update(customer) : customerService.add(customer);
         System.out.println(error == null ? "保存成功。" : error);
+    }
+
+    private String readUniqueCustomerPhone(int excludeId) {
+        while (true) {
+            String phone = input.readPattern("电话：", "\\d{11}", "手机号必须是 11 位数字。");
+            if (!customerService.phoneExists(phone, excludeId)) {
+                return phone;
+            }
+            System.out.println("手机号已存在，请重新输入。");
+        }
     }
 
     private String readCustomerLevel() {

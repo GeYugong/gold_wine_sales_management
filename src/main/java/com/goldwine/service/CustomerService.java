@@ -35,6 +35,7 @@ public class CustomerService {
     public Customer findById(int id) { return customerDao.findById(id); }
     public List<Customer> findAll() { return customerDao.findAll(); }
     public List<Customer> search(String keyword) { return customerDao.search(keyword); }
+    public boolean phoneExists(String phone, int excludeId) { return customerDao.phoneExists(phone, excludeId); }
 
     public boolean delete(int id) {
         if (customerDao.hasOrder(id)) {

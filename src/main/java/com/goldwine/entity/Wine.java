@@ -3,7 +3,7 @@ package com.goldwine.entity;
 import java.math.BigDecimal;
 
 /**
- * 编写者：Gold 红酒销售管理系统开发组
+ * 编写者：胡嘉祺
  * 完成时间：2026-07-05
  * 类的具体功能：保存红酒商品信息。
  */

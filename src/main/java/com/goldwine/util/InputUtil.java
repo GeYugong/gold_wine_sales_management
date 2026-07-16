@@ -7,7 +7,7 @@ import java.time.format.DateTimeParseException;
 import java.util.Scanner;
 
 /**
- * 编写者：Gold 红酒销售管理系统开发组
+ * 编写者：曾欣欣
  * 完成时间：2026-07-05
  * 类的具体功能：封装控制台输入读取和基础校验。
  */

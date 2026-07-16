@@ -4,7 +4,7 @@ import com.goldwine.ui.ConsoleMenu;
 import com.goldwine.util.DBUtil;
 
 /**
- * 编写者：Gold 红酒销售管理系统开发组
+ * 编写者：葛禹贡
  * 完成时间：2026-07-05
  * 类的具体功能：程序入口，初始化数据库并启动控制台菜单。
  */

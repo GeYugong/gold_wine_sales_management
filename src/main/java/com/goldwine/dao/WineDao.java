@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 编写者：Gold 红酒销售管理系统开发组
+ * 编写者：胡嘉祺
  * 完成时间：2026-07-05
  * 类的具体功能：提供红酒表的增删改查和库存更新操作。
  */

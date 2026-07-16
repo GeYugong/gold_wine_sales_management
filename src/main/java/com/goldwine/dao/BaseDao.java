@@ -6,7 +6,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
- * 编写者：Gold 红酒销售管理系统开发组
+ * 编写者：葛禹贡
  * 完成时间：2026-07-05
  * 类的具体功能：DAO 层公共父类，提供数据库连接方法。
  */

@@ -6,7 +6,7 @@ import com.goldwine.entity.Origin;
 import java.util.List;
 
 /**
- * 编写者：王福洪
+ * 编写者：王福淇
  * 完成时间：2026-07-05
  * 类的具体功能：处理产地管理业务规则。
  */
